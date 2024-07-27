@@ -1,5 +1,6 @@
 STATIC=libsll.a
 SHARED=libsll.so
+TEST=testing
 
 SRC=./src
 COMP=./comp
@@ -22,7 +23,7 @@ DEBUG ?= 0
 all: static shared
 
 test: static
-	$(CC) $(SRC)/test.c $(BIN)/$(STATIC) -o main
+	$(CC) $(SRC)/test.c $(BIN)/$(STATIC) -o $(BIN)/$(TEST)
 
 static: $(OBJECTS)
 	ar rcs $(BIN)/$(STATIC) $<
@@ -43,4 +44,3 @@ endif
 clean:
 	@rm $(COMP)/*
 	@rm $(BIN)/*
-	@rm main
