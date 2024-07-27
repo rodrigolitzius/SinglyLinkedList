@@ -1,0 +1,3 @@
+Always use node pointer variables (LL_Node* node) in your program. Copying a node to a non-pointer variable (LL_Node node = *LL_NodeCreate()) creates a node that is disconnected from the linked list.
+DO NOT EVER set any node's data to stack allocated memory. Either allocate memory yourself or use the library functions (recommended)
+Don't forget the first node's pointer. Some functions may require it.
