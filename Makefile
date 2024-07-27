@@ -1,25 +1,46 @@
-OUTPUT_FILE=main
+STATIC=libsll.a
+SHARED=libsll.so
+
 SRC=./src
 COMP=./comp
+BIN=./bin
 
-FILES=$(wildcard $(SRC)/*.c)
+CC=gcc
+CFLAGS=-std=c17 -Wall -Wextra -pedantic -pedantic-errors
+
+CFLAGS_RELEASE=-O2
+CFLAGS_DEBUG=-g -O0
+
+FILES=./src/sll.c
 OBJECTS=$(patsubst $(SRC)/%,$(COMP)/%,$(patsubst %.c,%.o,$(FILES)))
 DEPENDS=$(patsubst $(SRC)/%,$(COMP)/%,$(patsubst %.c,%.d,$(FILES)))
 
-CC=gcc
-CFLAGS=-g -O0 -std=c17 -Wall -Wextra -pedantic -pedantic-errors
-CFLAGS_LINKTIME=-fsanitize=undefined,address,leak
+DEBUG ?= 0
 
 .PHONY: all clean
 
-all: $(OUTPUT_FILE)
+all: static shared
 
-$(OUTPUT_FILE): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(OUTPUT_FILE) $(CFLAGS_LINKTIME) $(CFLAGS)
+test: static
+	$(CC) $(SRC)/test.c $(BIN)/$(STATIC) -o main
+
+static: $(OBJECTS)
+	ar rcs $(BIN)/$(STATIC) $<
+
+shared: $(OBJECTS)
+	$(CC) $^ -fPIC -shared -o $(BIN)/$(SHARED)
 
 -include $(DEPENDS)
 $(COMP)/%.o: $(SRC)/%.c Makefile
-	$(CC) -MMD -MP -c $< -o $@ $(CFLAGS)
+ifeq ($(DEBUG),0)
+	$(CC) -MMD -MP -c $< -o $@ $(CFLAGS) $(CFLAGS_RELEASE)
+endif
+
+ifeq ($(DEBUG),1)
+	$(CC) -MMD -MP -c $< -o $@ $(CFLAGS) $(CFLAGS_DEBUG)
+endif
 
 clean:
 	@rm $(COMP)/*
+	@rm $(BIN)/*
+	@rm main
